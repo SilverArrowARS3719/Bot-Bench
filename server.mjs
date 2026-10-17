@@ -1,4 +1,4 @@
-// Production server for a published Robot Studio: serves the built app (npm run build -> dist/) with the
+// Production server for a published Bot Bench: serves the built app (npm run build -> dist/) with the
 // cross-origin isolation headers the Python runner needs, plus the smart assistant at /api/assistant.
 // Run: GEMINI_API_KEY=... PORT=8080 npm start   (on a host like Render or Railway, set them as environment variables)
 import http from 'node:http';
@@ -24,4 +24,4 @@ http.createServer(async (req, res) => {
   } catch { res.statusCode = 404; return res.end('Not found'); }
   res.setHeader('Content-Type', TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream');
   createReadStream(file).pipe(res);
-}).listen(process.env.PORT || 8080, () => console.log(`Robot Studio on http://localhost:${process.env.PORT || 8080}${process.env.GEMINI_API_KEY ? '' : ' (no GEMINI_API_KEY: offline assistant only)'}`));
+}).listen(process.env.PORT || 8080, () => console.log(`Bot Bench on http://localhost:${process.env.PORT || 8080}${process.env.GEMINI_API_KEY ? '' : ' (no GEMINI_API_KEY: offline assistant only)'}`));

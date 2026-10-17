@@ -29,7 +29,7 @@ test('relays a turn with the fixed instructions and actions, and returns the act
   assert.deepEqual(await r.json(), { id: 'i2', calls: [{ id: 'c1', name: 'add_parts', args: { part: 'hub' } }], text: '' });
   const sent = gemini.calls[0];
   assert.equal(sent.previous_interaction_id, 'i1');
-  assert.match(sent.system_instruction, /Robot Studio/);
+  assert.match(sent.system_instruction, /Bot Bench/);
   assert.ok(sent.tools.some(t => t.name === 'add_parts') && sent.tools.some(t => t.name === 'ask_user'));
   s.close();
 });

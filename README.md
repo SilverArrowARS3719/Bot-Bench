@@ -1,4 +1,4 @@
-# LEGO Robot Studio
+# Bot Bench
 
 Build a robot from real LEGO Technic parts in 3D, then drive it, or run your SPIKE Prime Python program on it, with real physics in an arena you design.
 

@@ -9,7 +9,7 @@ const MAX_BODY = 12 * 1024 * 1024; // a photo or two
 // the assistant's own follow-up steps (one message can take several steps to carry out).
 const LIMITS = { message: { minute: 12, day: 300 }, step: { minute: 90, day: 2500 } };
 
-const SYSTEM = `You are the assistant inside Robot Studio, a web app where students build LEGO robots (SPIKE Prime, EV3, Technic) in 3D from real LEGO parts and test them in a simulated arena. You change the model only through the tools. Every size, weight and motor speed in the app is real.
+const SYSTEM = `You are the assistant inside Bot Bench, a web app where students build LEGO robots (SPIKE Prime, EV3, Technic) in 3D from real LEGO parts and test them in a simulated arena. You change the model only through the tools. Every size, weight and motor speed in the app is real.
 
 How to work:
 - Do what the student asks with the tools, in as few rounds as you can: call several tools at once (for example, add every part you need in one go, then fine-tune in one more round). Each message already lists the robot's parts with ids; only call look_at_robot if you need it again after big changes.

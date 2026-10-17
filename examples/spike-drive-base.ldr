@@ -1,6 +1,6 @@
 0 spike-drive-base
 0 Name: spike-drive-base.ldr
-0 Author: LEGO Robot Studio
+0 Author: Bot Bench
 1 15 50 -70 0 0 1 0 -1 0 0 0 0 1 54675.dat
 1 15 -50 -70 0 0 -1 0 1 0 0 0 0 1 54675.dat
 1 0 90 -70 0 1 0 0 0 1 0 0 0 1 4519.dat

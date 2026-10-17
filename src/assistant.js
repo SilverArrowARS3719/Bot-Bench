@@ -195,7 +195,7 @@ const EXAMPLES = ['add a hub on top of 2 large motors', 'add 2 wheels next to th
 const HELLO = 'Hi! Tell me what to build or test, or give me a picture or a LEGO file (the clip button, or drop it here). For example:';
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : /s$/.test(word) ? '' : 's'}`;
 
-// app: the bits of Robot Studio the assistant may use (see main.js)
+// app: the bits of Bot Bench the assistant may use (see main.js)
 export function createAssistant(root, app) {
   const chat = root.querySelector('.chat'), form = root.querySelector('form'), input = form.querySelector('input');
   let pending = null; // the question waiting for an answer: [{ label, run }]

@@ -1,4 +1,4 @@
-/* Robot Studio: a calm workbench, light or dark. One yellow for the thing to press, blue for what's selected. */
+/* Bot Bench: a calm workbench, light or dark. One yellow for the thing to press, blue for what's selected. */
 @import './tokens.css';
 
 * { box-sizing: border-box; }

@@ -61,7 +61,7 @@ export function serializeLdr(parts, name = 'model.ldr') {
   return [
     `0 ${name.replace(/\.\w+$/, '')}`,
     `0 Name: ${name}`,
-    '0 Author: LEGO Robot Studio',
+    '0 Author: Bot Bench',
     ...parts.map(p => `1 ${p.color} ${p.m.map(fmt).join(' ')} ${p.file}`),
     '',
   ].join('\n');

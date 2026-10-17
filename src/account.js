@@ -14,7 +14,7 @@ if (user) location.replace(next); // already signed in
 
 function showMode() {
   const signup = mode === 'signup';
-  document.title = `${signup ? 'Sign up' : 'Log in'} · Robot Studio`;
+  document.title = `${signup ? 'Sign up' : 'Log in'} · Bot Bench`;
   $('#title').textContent = signup ? 'Create your account' : 'Welcome back';
   $('#subtitle').textContent = signup ? 'To save your robots and use the studio.' : 'Log in to open the studio.';
   $('#submit').textContent = signup ? 'Create account' : 'Log in';
