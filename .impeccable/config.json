@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "marquee",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-14T12:20:33.321Z",
+        "reason": "Claude triage: the only continuous motion is the indeterminate loading bar (#loading .bar-anim), shown only while the parts library loads; real progress feedback, not a marquee"
+      },
+      {
+        "rule": "tight-leading",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-17T16:01:10.475Z",
+        "reason": "Claude triage: the only tight leading is the home hero h1 (src/site.css .hero h1, 36-60px display headline, line-height 1.04); body text is 1.55. Tight leading on large display type is intentional."
+      }
+    ]
+  }
+}

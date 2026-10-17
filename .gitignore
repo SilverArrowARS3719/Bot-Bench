@@ -1,0 +1,15 @@
+node_modules
+dist
+.DS_Store
+
+# secrets: your Gemini key lives here
+.env.local
+.env
+
+# the LEGO part libraries (about 850 MB): download them with the commands in README.md
+public/ldraw
+public/ldcad
+public/parts.json
+
+# local caches
+.impeccable/hook.cache.json

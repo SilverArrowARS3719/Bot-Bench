@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Robot Studio · Build and test LEGO robots online</title>
+  <meta name="description" content="Design LEGO robots from real SPIKE Prime, EV3 and Technic parts in 3D, then drive them, code them and test them on your competition mat, in the browser.">
+  <script>try { document.documentElement.dataset.theme = localStorage.getItem('studio.theme') || 'dark'; } catch { document.documentElement.dataset.theme = 'dark'; }</script>
+  <link rel="stylesheet" href="/src/site.css">
+</head>
+<body>
+  <header class="site-bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"></span>Robot Studio</a>
+    <nav aria-label="Site">
+      <a href="/about.html">About us</a>
+      <span class="nav-auth" data-signed-out>
+        <a href="/account.html?mode=login">Log in</a>
+        <a class="button primary" href="/account.html?mode=signup">Sign up</a>
+      </span>
+      <span class="nav-auth" data-signed-in hidden>
+        <a class="button primary" href="/studio.html">Open the studio</a>
+        <button type="button" class="button" data-logout>Log out</button>
+      </span>
+    </nav>
+  </header>
+
+  <main class="home">
+    <section class="hero">
+      <p class="eyebrow">For FLL, WRO and robotics clubs</p>
+      <h1>Build your robot. Test it before you build it.</h1>
+      <p class="lead">Design LEGO robots from real SPIKE Prime, EV3 and Technic parts in 3D. Then drive them, code them with blocks or Python, and try them on your competition mat, with real sizes, weights and motor speeds.</p>
+      <a class="button primary big" href="/studio.html" data-start>Start building</a>
+    </section>
+
+    <!-- placeholder content: the real page design comes later -->
+    <section class="points" aria-label="What you can do">
+      <div><h2>Build with real parts</h2><p>Every LEGO part, at its real size. Pins, axles and holes click together on their own.</p></div>
+      <div><h2>Test with real physics</h2><p>Real motor speeds and weights, so a heavy robot is slow and a steep ramp stops it.</p></div>
+      <div><h2>Code it like the real hub</h2><p>SPIKE word blocks or SPIKE Python, run on your robot in the arena.</p></div>
+      <div><h2>Ask the assistant</h2><p>Tell it what to build, or show it a photo of a robot.</p></div>
+    </section>
+  </main>
+
+  <footer class="site-foot">
+    <span>Robot Studio</span>
+    <a href="/about.html">About us</a>
+  </footer>
+  <script type="module" src="/src/site.js"></script>
+</body>
+</html>

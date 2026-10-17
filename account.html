@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign up or log in · Robot Studio</title>
+  <script>try { document.documentElement.dataset.theme = localStorage.getItem('studio.theme') || 'dark'; } catch { document.documentElement.dataset.theme = 'dark'; }</script>
+  <link rel="stylesheet" href="/src/site.css">
+</head>
+<body class="account-page">
+  <header class="site-bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"></span>Robot Studio</a>
+    <nav aria-label="Site"><a href="/about.html">About us</a></nav>
+  </header>
+
+  <main class="account">
+    <div class="card">
+      <p id="dev-note" class="dev-note" hidden>Test mode: accounts are kept in this browser only, and the code shows up here instead of in an email.</p>
+
+      <!-- step 1: sign up or log in -->
+      <form id="start" novalidate>
+        <h1 id="title">Create your account</h1>
+        <p class="sub" id="subtitle">To save your robots and use the studio.</p>
+        <button type="button" class="button google wide" id="google">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5a5.6 5.6 0 0 1-2.4 3.6v3h3.9c2.2-2.1 3.5-5.1 3.5-8.8z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 7.9-2.9l-3.9-3c-1.1.7-2.4 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9h-4v3.1A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.4 14.4a7.2 7.2 0 0 1 0-4.7V6.6h-4a12 12 0 0 0 0 10.9l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.7 0 3.3.6 4.5 1.8l3.4-3.4A12 12 0 0 0 1.4 6.6l4 3.1C6.3 6.9 8.9 4.8 12 4.8z"/></svg>
+          Continue with Google
+        </button>
+        <p class="or"><span>or with email</span></p>
+        <label class="field">Email
+          <input id="email" type="email" autocomplete="email" required spellcheck="false">
+        </label>
+        <label class="field">Password
+          <span class="password">
+            <input id="password" type="password" autocomplete="new-password" minlength="8" required>
+            <button type="button" class="show" id="show" aria-label="Show password">Show</button>
+          </span>
+        </label>
+        <p class="hint" id="pw-hint">At least 8 characters.</p>
+        <p class="error" id="error" role="alert"></p>
+        <button class="button primary wide" id="submit">Create account</button>
+        <p class="switch" id="switch">Already have an account? <a href="?mode=login">Log in</a></p>
+      </form>
+
+      <!-- step 2: the code from the email -->
+      <form id="verify" novalidate hidden>
+        <h1>Check your email</h1>
+        <p class="sub">We sent a 6-digit code to <b id="sent-to"></b>. It works for 10 minutes.</p>
+        <label class="field">Code
+          <input id="code" class="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+        </label>
+        <p class="dev-code" id="dev-code" hidden></p>
+        <p class="error" id="verify-error" role="alert"></p>
+        <button class="button primary wide">Confirm</button>
+        <p class="switch"><button type="button" class="link" id="resend">Send a new code</button> · <button type="button" class="link" id="back">Use a different email</button></p>
+      </form>
+    </div>
+  </main>
+  <script type="module" src="/src/account.js"></script>
+</body>
+</html>

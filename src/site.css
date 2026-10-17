@@ -1,0 +1,100 @@
+/* The website pages around the studio: home, about, sign up / log in. Same colours and font as the studio. */
+@import './tokens.css';
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; min-height: 100dvh; display: flex; flex-direction: column;
+  background: var(--bg); color: var(--text);
+  font: 15px/1.55 "Geist Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+h1, h2 { letter-spacing: -0.02em; text-wrap: balance; }
+p { text-wrap: pretty; }
+
+.button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 38px; padding: 0 16px; border-radius: 9px; border: 1px solid var(--line-2);
+  background: var(--raised); color: var(--text); font: inherit; font-weight: 560; text-decoration: none; cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, transform 0.12s var(--ease);
+}
+.button:hover { background: var(--hover); border-color: var(--line-hover); }
+.button:active { transform: scale(0.97); }
+.button:disabled { opacity: 0.6; cursor: default; transform: none; }
+.button.primary { background: var(--accent); border-color: var(--accent-edge); color: var(--accent-ink); font-weight: 650; }
+.button.primary:hover { background: var(--accent-hover); }
+.button.big { height: 48px; padding: 0 26px; font-size: 16px; border-radius: 11px; }
+.button.wide { width: 100%; }
+
+/* ---------- header and footer ---------- */
+.site-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  max-width: 1120px; width: 100%; margin: 0 auto; padding: 18px 24px;
+}
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; text-decoration: none; letter-spacing: -0.01em; }
+.brand-mark { position: relative; width: 22px; height: 15px; border-radius: 3px; background: var(--accent); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.14); margin-top: 4px; }
+.brand-mark::before, .brand-mark::after { content: ""; position: absolute; top: -4px; width: 7px; height: 4px; border-radius: 2px 2px 0 0; background: var(--accent); }
+.brand-mark::before { left: 3px; }
+.brand-mark::after { right: 3px; }
+nav { display: flex; align-items: center; gap: 18px; }
+nav > a, .nav-auth > a:not(.button) { color: var(--muted); text-decoration: none; font-weight: 520; }
+nav > a:hover, .nav-auth > a:not(.button):hover, nav > a[aria-current="page"] { color: var(--text); }
+.nav-auth { display: flex; align-items: center; gap: 14px; }
+.site-foot { display: flex; gap: 18px; max-width: 1120px; width: 100%; margin: auto auto 0; padding: 28px 24px; color: var(--faint); font-size: 13px; }
+.site-foot a { color: var(--muted); }
+
+/* ---------- home ---------- */
+.home { max-width: 1120px; width: 100%; margin: 0 auto; padding: 0 24px; }
+.hero { padding: 72px 0 56px; max-width: 720px; }
+.eyebrow { margin: 0 0 14px; color: var(--muted); font-weight: 560; font-size: 14px; }
+.hero h1 { font-size: clamp(36px, 5.5vw, 60px); line-height: 1.04; margin: 0 0 20px; font-weight: 720; }
+.lead { font-size: 18px; color: var(--muted); max-width: 60ch; margin: 0 0 32px; }
+.points { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 28px 32px; padding: 32px 0 64px; border-top: 1px solid var(--line); }
+.points h2 { font-size: 17px; margin: 0 0 6px; }
+.points p { margin: 0; color: var(--muted); }
+
+/* ---------- about ---------- */
+.page { max-width: 680px; width: 100%; margin: 0 auto; padding: 48px 24px 64px; }
+.page h1 { font-size: 40px; margin: 0 0 20px; }
+.page p { color: var(--muted); font-size: 17px; }
+
+/* ---------- sign up / log in ---------- */
+.account { flex: 1; display: grid; place-items: start center; padding: 32px 20px 64px; }
+.card { width: min(400px, 100%); padding: 28px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow-2); }
+.card h1 { font-size: 24px; margin: 0 0 4px; }
+.card .sub { margin: 0 0 22px; color: var(--muted); }
+.google svg { width: 18px; height: 18px; }
+.or { display: flex; align-items: center; gap: 12px; margin: 18px 0; color: var(--faint); font-size: 13px; }
+.or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; font-size: 13px; font-weight: 560; color: var(--muted); }
+.field input {
+  height: 42px; padding: 0 12px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--raised); color: var(--text); font: 15px inherit; font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+.password { position: relative; display: flex; }
+.password input { flex: 1; padding-right: 64px; }
+.password .show { position: absolute; right: 6px; top: 6px; height: 30px; padding: 0 10px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); font: inherit; font-size: 13px; cursor: pointer; }
+.password .show:hover { background: var(--hover); color: var(--text); }
+.code { font-family: "Geist Mono Variable", ui-monospace, monospace; font-size: 24px !important; letter-spacing: 0.35em; text-align: center; height: 52px !important; }
+.hint { margin: -6px 0 14px; color: var(--faint); font-size: 13px; }
+.error { margin: 0 0 12px; color: var(--bad); font-size: 14px; min-height: 0; }
+.error:empty { display: none; }
+.switch { margin: 18px 0 0; text-align: center; color: var(--muted); font-size: 14px; }
+.switch a, .link { color: var(--blue); font-weight: 560; }
+.link { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.link:disabled { color: var(--faint); cursor: default; text-decoration: none; }
+.dev-note { margin: -4px 0 18px; padding: 10px 12px; border-radius: 9px; background: var(--blue-soft); color: var(--text); font-size: 13px; }
+.dev-code { margin: 0 0 12px; padding: 10px 12px; border-radius: 9px; background: var(--sunken); font: 600 14px "Geist Mono Variable", ui-monospace, monospace; }
+
+@media (max-width: 640px) {
+  .site-bar { padding: 14px 16px; }
+  nav { gap: 12px; }
+  .nav-auth > a:not(.button) { display: none; }
+  .hero { padding: 40px 0 36px; }
+  .home, .page { padding-left: 16px; padding-right: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0s !important; animation: none !important; } }
