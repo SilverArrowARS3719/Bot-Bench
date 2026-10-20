@@ -1,7 +1,7 @@
 /* Colours, shadows and sizes shared by the studio and the website pages (index, about, account). */
 /* Light is a soft grey workbench, dark a charcoal one; both keep the yellow and blue. */
 :root, :root[data-theme="light"] {
-  --bg: #e1e5ea;
+  --bg: #f2f3f5;
   --panel: #f5f6f8;
   --raised: #fcfcfd;
   --sunken: #eaedf1;
@@ -12,16 +12,16 @@
   --text: #19202a;
   --muted: #5a6573;
   --faint: #8a94a1;
-  --accent: #ffcf1f;
-  --accent-hover: #ffd84a;
-  --accent-edge: #eebb00;
-  --accent-ink: #231c00;
-  --blue: #2563eb;
-  --blue-soft: #e5edff;
-  --blue-line: #b9cbf3;
+  --accent: #e08f2a;
+  --accent-hover: #f5b262;
+  --accent-edge: #c97a18;
+  --accent-ink: #2a1405;
+  --blue: #f45f3d;
+  --blue-soft: #fde4dc;
+  --blue-line: #f7a58f;
   --good: #15803d;
   --good-soft: #e1f3e6;
-  --bad: #c2321f;
+  --bad: #96200e;
   --bad-soft: #fbe8e5;
   --switch-off: #c6cdd6;
   --glass: rgba(252, 252, 253, 0.94);
@@ -52,13 +52,13 @@
   --text: #e6e9ed;
   --muted: #9aa3ae;
   --faint: #6c7581;
-  --accent-hover: #ffd84a;
-  --blue: #5b8fff;
-  --blue-soft: #1c2740;
-  --blue-line: #34508f;
+  --accent-hover: #f5b262;
+  --blue: #f45f3d;
+  --blue-soft: #3a1c14;
+  --blue-line: #8a3a26;
   --good: #4cc77a;
   --good-soft: #17301f;
-  --bad: #ff7a66;
+  --bad: #96200e;
   --bad-soft: #3a1d19;
   --switch-off: #3a414a;
   --glass: rgba(32, 36, 42, 0.94);

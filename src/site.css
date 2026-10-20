@@ -98,3 +98,73 @@ nav > a:hover, .nav-auth > a:not(.button):hover, nav > a[aria-current="page"] { 
   .home, .page { padding-left: 16px; padding-right: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0s !important; animation: none !important; } }
+
+/* ---------- home sections ---------- */
+.cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.section-title { font-size: clamp(24px, 3vw, 32px); margin: 0 0 28px; }
+.steps { padding: 56px 0; border-top: 1px solid var(--line); }
+.steps ol { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.steps li { padding: 22px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); }
+.steps li span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.steps h3 { margin: 14px 0 6px; font-size: 18px; }
+.steps p, .faq p { margin: 0; color: var(--muted); }
+.faq { padding: 56px 0; border-top: 1px solid var(--line); max-width: 720px; }
+.faq details { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.faq summary { cursor: pointer; font-weight: 600; font-size: 16px; }
+.faq details p { margin-top: 10px; }
+.final-cta { padding: 64px 0 80px; border-top: 1px solid var(--line); text-align: center; }
+.final-cta h2 { font-size: clamp(28px, 4vw, 40px); margin: 0 0 24px; }
+.site-foot { flex-wrap: wrap; }
+.site-foot .legal { flex-basis: 100%; }
+
+/* ---------- glass hero: warm photo (public/hero.jpg, optional) under frosted panels ---------- */
+body:has(.glass-hero) { background: #f2f3f5; color: #2a1405; color-scheme: light; }
+body:has(.glass-hero) .site-bar { margin-top: 16px; width: min(1120px, calc(100% - 32px)); padding: 10px 12px 10px 20px; border-radius: 99px; background: rgba(255, 255, 255, .55); backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, .7); box-shadow: 0 8px 30px rgba(150, 32, 14, .08); position: sticky; top: 16px; z-index: 5; }
+.glass-hero {
+  position: relative; display: grid; grid-template-columns: 1fr 1.25fr; align-items: center; gap: 32px; max-width: none;
+  margin: -76px calc(50% - 50vw) 0; padding: 180px max(24px, calc(50vw - 560px)) 72px; min-height: min(92dvh, 820px);
+  background: url(/hero.jpg) center / cover, radial-gradient(120% 90% at 80% 20%, #f5b262 0%, #f2c79a 30%, #f2e6da 60%, #f2f3f5 100%);
+}
+.glass-hero h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; font-size: clamp(44px, 6.5vw, 84px); line-height: 1.02; margin: 0 0 22px; color: #2a1405; }
+.glass-hero h1 em { font-style: normal; color: #96200e; }
+.glass-hero .lead { color: #5a3a24; max-width: 52ch; }
+.glass { background: rgba(255, 255, 255, .5); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, .75); border-radius: 22px; box-shadow: 0 20px 50px rgba(150, 32, 14, .1); }
+.stat-card { list-style: none; margin: 0; padding: 22px 28px; display: flex; gap: 32px; }
+.stat-card li { display: flex; flex-direction: column; font-size: 13px; color: #5a3a24; }
+.stat-card b { font-size: 26px; color: #2a1405; letter-spacing: -.02em; }
+.button.dark { background: #2a1405; color: #f2f3f5; border-color: #2a1405; border-radius: 99px; }
+.button.dark:hover { background: #96200e; border-color: #96200e; }
+.button.ghost-light { background: rgba(255, 255, 255, .5); border-color: rgba(255, 255, 255, .8); color: #2a1405; border-radius: 99px; }
+.button.ghost-light:hover { background: rgba(255, 255, 255, .8); }
+@media (max-width: 800px) { .glass-hero { grid-template-columns: 1fr; } .stat-card { gap: 20px; } }
+.hero-bot { width: 100%; aspect-ratio: 1.1; max-height: 680px; margin-right: -4%; grid-row: span 2; }
+.glass-hero .stat-card { grid-column: 1; }
+body:has(.glass-hero) nav > a, body:has(.glass-hero) .nav-auth > a:not(.button) { color: #5a3a24; }
+body:has(.glass-hero) nav > a:hover, body:has(.glass-hero) .nav-auth > a:not(.button):hover { color: #96200e; }
+
+/* ---------- sign up / log in: art panel + form, in the brand palette ---------- */
+body.account-page { background: #f2e6da; color: #2a1405; color-scheme: light; }
+.account-page nav > a { color: #5a3a24; }
+.account-page nav > a:hover { color: #96200e; }
+.account { place-items: center; }
+.split { display: grid; grid-template-columns: 1fr 1fr; width: min(940px, 100%); padding: 10px; border-radius: 26px; background: #fbf8f5; box-shadow: 0 30px 80px rgba(150, 32, 14, .14); }
+.split-art {
+  position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 560px; padding: 28px; border-radius: 18px; overflow: hidden; color: #fff;
+  background: radial-gradient(60% 55% at 30% 35%, #96200e 0%, transparent 70%), radial-gradient(70% 60% at 80% 20%, #f45f3d 0%, transparent 70%), radial-gradient(90% 70% at 70% 90%, #f5b262 0%, transparent 75%), #e08f2a;
+}
+.split-art p { margin: 0 0 8px; opacity: .85; font-size: 14px; }
+.split-art h2 { margin: 0; font-size: 28px; line-height: 1.2; max-width: 16ch; }
+.big-mark { transform: scale(1.6); transform-origin: left top; background: #fff; }
+.big-mark::before, .big-mark::after { background: #fff; }
+.account-page .card { background: transparent; border: 0; box-shadow: none; width: 100%; padding: 48px 44px; align-self: center; }
+.account-page .card .sub, .account-page .field, .account-page .switch, .account-page .or { color: #7a5a44; }
+.account-page .field input { background: #fff; border-color: #e6d6c8; color: #2a1405; }
+.account-page .field input:focus { border-color: #e08f2a; box-shadow: 0 0 0 3px #fbe3c6; }
+.account-page .button { background: #fff; border-color: #e6d6c8; color: #2a1405; }
+.account-page .button.primary { background: #2a1405; border-color: #2a1405; color: #f2f3f5; }
+.account-page .button.primary:hover { background: #96200e; border-color: #96200e; }
+.account-page .switch a, .account-page .link { color: #96200e; }
+.account-page .dev-note { background: #fdeee0; color: #5a3a24; }
+.account-page .dev-code { background: #f6ece2; }
+.account-page .or::before, .account-page .or::after { background: #e6d6c8; }
+@media (max-width: 760px) { .split { grid-template-columns: 1fr; } .split-art { min-height: 200px; } .account-page .card { padding: 28px 20px; } }

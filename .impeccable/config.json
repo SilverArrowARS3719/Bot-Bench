@@ -20,6 +20,15 @@
         ],
         "createdAt": "2026-10-17T16:01:10.475Z",
         "reason": "Claude triage: the only tight leading is the home hero h1 (src/site.css .hero h1, 36-60px display headline, line-height 1.04); body text is 1.55. Tight leading on large display type is intentional."
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-19T13:54:43.834Z",
+        "reason": "Claude triage: sizes live in src/site.css (hero h1 36-60px, section titles 24-32px, steps h3 18px, body 15px); every step is well over 1.25x, so the hierarchy is not flat"
       }
     ]
   }

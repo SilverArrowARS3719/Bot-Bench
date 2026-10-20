@@ -25,26 +25,59 @@
   </header>
 
   <main class="home">
-    <section class="hero">
-      <p class="eyebrow">For FLL, WRO and robotics clubs</p>
-      <h1>Build your robot. Test it before you build it.</h1>
-      <p class="lead">Design LEGO robots from real SPIKE Prime, EV3 and Technic parts in 3D. Then drive them, code them with blocks or Python, and try them on your competition mat, with real sizes, weights and motor speeds.</p>
-      <a class="button primary big" href="/studio.html" data-start>Start building</a>
+    <section class="hero glass-hero">
+      <div class="hero-copy">
+        <h1>Robots that work<br><em>before</em> you build them</h1>
+        <p class="lead">Design robots from real SPIKE Prime, EV3 and Technic parts in 3D. Drive them, code them, and run them on your competition mat, with real sizes, weights and motor speeds.</p>
+        <div class="cta-row">
+          <a class="button dark big" href="/studio.html" data-start>Start building <span aria-hidden="true">→</span></a>
+          <a class="button big ghost-light" href="#how">See how it works</a>
+        </div>
+      </div>
+      <canvas id="hero-bot" class="hero-bot" aria-label="The example robot, a SPIKE Prime drive base, turning slowly"></canvas>
+      <ul class="glass stat-card">
+        <li><b>2,267</b>Technic parts</li>
+        <li><b>0.4 mm</b>part accuracy</li>
+        <li><b>240/s</b>physics steps</li>
+      </ul>
     </section>
 
-    <!-- placeholder content: the real page design comes later -->
-    <section class="points" aria-label="What you can do">
-      <div><h2>Build with real parts</h2><p>Every LEGO part, at its real size. Pins, axles and holes click together on their own.</p></div>
-      <div><h2>Test with real physics</h2><p>Real motor speeds and weights, so a heavy robot is slow and a steep ramp stops it.</p></div>
-      <div><h2>Code it like the real hub</h2><p>SPIKE word blocks or SPIKE Python, run on your robot in the arena.</p></div>
-      <div><h2>Ask the assistant</h2><p>Tell it what to build, or show it a photo of a robot.</p></div>
+    <section id="how" class="steps" aria-label="How it works">
+      <h2 class="section-title">From idea to a working robot in three steps</h2>
+      <ol>
+        <li><span>1</span><h3>Build</h3><p>Pick parts and they click onto the nearest pin or axle. Or tell the assistant, or show it a photo.</p></li>
+        <li><span>2</span><h3>Test</h3><p>Drive with the keyboard on your mat. Heavy robots are slow, steep ramps stop them, arms hit the chassis.</p></li>
+        <li><span>3</span><h3>Code</h3><p>SPIKE word blocks or SPIKE Python, the same code you'll run on the real hub.</p></li>
+      </ol>
+    </section>
+
+    <section class="points" aria-label="What you get">
+      <div><h2>Save hours of rebuilding</h2><p>Try a gear ratio, an arm or a new wheel base in minutes, before taking the real robot apart.</p></div>
+      <div><h2>Practise without the table</h2><p>Upload your season's mat and obstacles, and test runs from home.</p></div>
+      <div><h2>Check the rules early</h2><p>See if your robot fits the WRO 250 mm cube and the FLL height limit as you build.</p></div>
+      <div><h2>Learn how robots really move</h2><p>Live motor load, speed and sensor readings show why a run works or fails.</p></div>
+    </section>
+
+    <section class="faq" aria-label="Questions">
+      <h2 class="section-title">Questions</h2>
+      <details><summary>Is it free?</summary><p>Yes. Make an account and start building.</p></details>
+      <details><summary>Do I need to install anything?</summary><p>No. It runs in your browser on a laptop or desktop.</p></details>
+      <details><summary>Will my code work on the real robot?</summary><p>The Python and blocks use the SPIKE Prime 3 commands, so you can copy them onto your hub. Real robots always vary a little, so test on the table too.</p></details>
+      <details><summary>Which kits does it support?</summary><p>SPIKE Prime, Robot Inventor, EV3 and every Technic part in the LDraw library.</p></details>
+    </section>
+
+    <section class="final-cta">
+      <h2>Your next robot starts here.</h2>
+      <a class="button primary big" href="/studio.html" data-start>Start building</a>
     </section>
   </main>
 
   <footer class="site-foot">
-    <span>Bot Bench</span>
+    <span>© 2026 Bot Bench</span>
     <a href="/about.html">About us</a>
+    <span class="legal">LEGO, SPIKE and MINDSTORMS are trademarks of the LEGO Group, which does not sponsor or endorse this site.</span>
   </footer>
   <script type="module" src="/src/site.js"></script>
+  <script type="module" src="/src/hero-bot.js"></script>
 </body>
 </html>
