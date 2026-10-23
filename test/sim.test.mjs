@@ -113,6 +113,23 @@ test('turning: W+D drives a smooth arc, Shift drives slowly, a motor\'s job can 
   slow.dispose();
 });
 
+test('Flip: a motor reversed by mistake makes W turn; flipping it back makes W go straight', async () => {
+  const probe = await createSim(buildRobot(SPIKE_BOT), { items: [] });
+  const leftKey = probe.telemetry().motors.find(m => m.role === 'left').key;
+  probe.dispose();
+  const movedByW = async flips => { // spinning on the spot goes nowhere; driving straight covers ground
+    const sim = await createSim(buildRobot(SPIKE_BOT), { items: [] }, { flips });
+    run(sim, 0.4, 0);
+    const start = sim.focus();
+    run(sim, 1, 1);
+    const moved = sim.focus().distanceTo(start);
+    sim.dispose();
+    return moved;
+  };
+  assert.ok(await movedByW({ [leftKey]: '1' }) < 0.06, 'one wheel backwards: W spins it on the spot');
+  assert.ok(await movedByW({}) > 0.2, 'both right: W drives it forward');
+});
+
 test('program API: move_for_degrees drives the right distance', async () => {
   const sim = await createSim(buildRobot(SPIKE_BOT), { items: [] });
   run(sim, 0.5, 0);

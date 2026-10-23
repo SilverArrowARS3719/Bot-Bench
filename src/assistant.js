@@ -369,6 +369,8 @@ export function createAssistant(root, app) {
       for (let i = 0; i < n; i++) await app.addObstacle(OBSTACLES[word], i, cmd.rel);
       return say(`Added ${plural(n, OBSTACLES[word] === 'cylinder' ? 'can' : OBSTACLES[word])} to the arena${cmd.rel === 'front' ? ' in front of the robot' : ''}. Drag it to move it; its size is on the left.`);
     }
+    // an EV3 robot gets EV3 parts: "add a brain" means an EV3 brick there
+    if (!/\b(spike|prime|ev3)\b/.test(cmd.what.words) && app.editor.parts().some(p => /Mindstorms EV3/.test(info(p.userData.file).name))) cmd.what.words = `ev3 ${cmd.what.words}`;
     const kind = kindOf(cmd.what.words);
     if (!kind) return say(`I don't know a part called "${cmd.what.words}". Try its name or number, like "15 beam", "medium motor" or "32278", or search the list on the left.`);
     if (kind.ask) {
@@ -469,6 +471,26 @@ export function createAssistant(root, app) {
   };
   let touched = [], edited = false;
   const aiTools = {
+    // a whole build from one reply: each step uses the same actions as below, run back to back
+    async build({ steps = [] }) {
+      const named = new Map(), results = [];
+      const ids = list => (list || []).flatMap(t => named.get(String(t).toLowerCase()) ?? (Number.isFinite(+t) ? [+t] : []));
+      for (const [i, st] of steps.entries()) {
+        let r;
+        try {
+          if (st.action === 'add') {
+            r = await aiTools.add_parts({ part: st.part, count: st.count, colour: st.colour, relation: st.relation, target_ids: ids(st.targets) });
+            if (st.name && r.added) named.set(st.name.toLowerCase(), r.added.map(p => p.id));
+          } else if (st.action === 'move') r = aiTools.move_parts({ ids: ids(st.targets), right_mm: st.right_mm, up_mm: st.up_mm, forward_mm: st.forward_mm });
+          else if (st.action === 'turn') r = aiTools.turn_parts({ ids: ids(st.targets), axis: st.axis || 'vertical', quarter_turns: st.quarter_turns ?? 1 });
+          else if (st.action === 'colour') r = await aiTools.colour_parts({ ids: ids(st.targets), colour: st.colour });
+          else if (st.action === 'delete') r = aiTools.delete_parts({ ids: ids(st.targets) });
+          else r = { error: `unknown action ${st.action}` };
+        } catch (err) { r = { error: err.message }; }
+        results.push({ step: i + 1, ...(r.error ? { error: r.error } : { ok: true, ...(r.added && { added: r.added.map(p => ({ id: p.id, name: p.name })) }) }) });
+      }
+      return results.some(r => r.error) ? { error: 'some steps failed', results } : { results };
+    },
     look_at_robot: async () => ({ mode: app.mode(), parts: await facts() }),
     find_parts: ({ query }) => {
       const terms = String(query).toLowerCase().split(/\s+/).filter(t => t && !STOP.has(t));
@@ -535,9 +557,17 @@ export function createAssistant(root, app) {
     const thinking = say('Thinking…');
     thinking.classList.add('thinking');
     try {
+      let busyWaits = 0;
       for (let turn = 0; turn < 15; turn++) {
         const r = await fetch('/api/assistant', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ interactionId: ai.id, input }) });
         const out = await r.json().catch(() => ({}));
+        if (r.status === 429 && out.error === 'quota' && busyWaits < 3) { // Google's free allowance for this minute is used up
+          const wait = 20 + busyWaits++ * 15;
+          for (let left = wait; left > 0; left--) { thinking.textContent = `Google's free tier is busy, trying again in ${left} s…`; await new Promise(res => setTimeout(res, 1000)); }
+          thinking.textContent = 'Thinking…';
+          turn--;
+          continue;
+        }
         if (!r.ok) return trouble(out.error, text);
         ai.id = out.id;
         if (!out.calls.length) { if (out.text) say(out.text); return; }
@@ -626,30 +656,41 @@ export function createAssistant(root, app) {
 
   async function send(text) {
     text = text.trim();
-    if (!text && !(ai.on && ai.picture?.fresh)) return;
-    if (ai.on) {
-      if (ai.waiting) { bubble(text, 'me'); return answerAI(text); }
-      chat.querySelectorAll('.choices, .try').forEach(r => r.remove());
-      pending = null;
-      if (text) bubble(text, 'me');
-      // the robot's parts come with the message, so Gemini doesn't spend a round trip looking
-      const parts = (await facts()).slice(0, 80).map(p => `${p.id} ${p.name} (part ${p.part}, ${p.colour}) at right ${p.centre_mm.right}, up ${p.centre_mm.up}, forward ${p.centre_mm.forward} mm; size ${p.size_mm.across} x ${p.size_mm.long} x ${p.size_mm.tall} mm`);
-      const message = [{ type: 'text', text: `${text || 'Here is a picture.'}\n\n[App: ${app.mode()} mode. Robot parts (id name, centre, size):${parts.length ? `\n${parts.join('\n')}` : ' none yet'}]` }];
-      if (ai.picture?.fresh) { message.push({ type: 'image', data: ai.picture.data, mime_type: 'image/jpeg' }); ai.picture.fresh = false; }
-      const held = ai.held;
-      ai.held = [];
-      return askAI([...held, ...message], text);
-    }
-    if (pending) { // an answer to the question: match it to one of the buttons
+    const pic = staged;
+    if (!text && !pic) return;
+    unstage();
+    chat.querySelectorAll('.try').forEach(r => r.remove());
+    const mine = bubble(text, 'me');
+    if (pic) mine.append(Object.assign(new Image(), { src: pic.src, alt: 'Your picture' }));
+    if (pending && !pic) { // an answer to the question: match it to one of the buttons
       const t = text.toLowerCase();
       const pick = /^(?:y|yes|yeah|yep|sure|ok|okay|do it|go ahead)\b/.test(t) ? pending[0]
         : /^(?:n|no|nope|cancel|stop|never ?mind)\b/.test(t) ? pending[pending.length - 1]
         : pending.find((o, i) => o.label.toLowerCase().includes(t) || t.includes(o.label.toLowerCase()) || t === String(i + 1));
-      if (pick) { chat.querySelectorAll('.choices').forEach(r => r.remove()); pending = null; bubble(text, 'me'); try { await pick.run(); } catch (err) { say(`That didn't work: ${err.message}`); } return; }
       chat.querySelectorAll('.choices').forEach(r => r.remove());
       pending = null;
+      if (pick) { try { await pick.run(); } catch (err) { say(`That didn't work: ${err.message}`); } return; }
     }
-    bubble(text, 'me');
+    if (ai.on) {
+      if (ai.waiting && !pic) return answerAI(text);
+      chat.querySelectorAll('.choices').forEach(r => r.remove());
+      pending = null;
+      // Something the app already understands ("add a brain", "make it red") runs right here, instantly;
+      // only pictures and things it can't follow go to Gemini, which takes seconds per step.
+      const quick = !pic && !ai.waiting && parse(text);
+      if (quick && quick.do !== 'too-much') { try { return await run(quick); } catch (err) { return say(`That didn't work: ${err.message}`); } }
+      const parts = (await facts()).slice(0, 80).map(p => `${p.id} ${p.name} (part ${p.part}, ${p.colour}) at right ${p.centre_mm.right}, up ${p.centre_mm.up}, forward ${p.centre_mm.forward} mm; size ${p.size_mm.across} x ${p.size_mm.long} x ${p.size_mm.tall} mm`);
+      const message = [{ type: 'text', text: `${text || 'Here is a picture.'}\n\n[App: ${app.mode()} mode. Robot parts (id name, centre, size):${parts.length ? `\n${parts.join('\n')}` : ' none yet'}]` }];
+      if (pic) {
+        ai.picture = { file: pic.file, data: pic.src.split(',')[1] };
+        app.showReference(pic.src);
+        message.push({ type: 'image', data: ai.picture.data, mime_type: 'image/jpeg' });
+      }
+      const held = ai.held;
+      ai.held = [];
+      return askAI([...held, ...message], text);
+    }
+    if (pic) return pictureOffline(pic);
     return offline(text);
   }
   // the offline assistant: set phrasings, one step at a time
@@ -684,30 +725,35 @@ export function createAssistant(root, app) {
   });
   input.addEventListener('paste', e => { const f = [...(e.clipboardData?.files || [])][0]; if (f) { e.preventDefault(); takeFile(f); } });
 
+  // A picture waits above the message box, like in other chats, and goes with the next message you send.
+  let staged = null;
+  const tray = Object.assign(document.createElement('div'), { className: 'attach', hidden: true });
+  form.before(tray);
+  function stage(file, src) {
+    staged = { file, src };
+    const x = Object.assign(document.createElement('button'), { type: 'button', textContent: '×', title: 'Remove the picture' });
+    x.setAttribute('aria-label', 'Remove the picture');
+    x.addEventListener('click', unstage);
+    tray.replaceChildren(Object.assign(new Image(), { src, alt: 'Picture to send' }), x);
+    tray.hidden = false;
+    input.placeholder = 'Say what to do with it, then send…';
+    input.focus();
+  }
+  function unstage() { staged = null; tray.hidden = true; tray.replaceChildren(); input.placeholder = ai.on ? 'Ask anything, or give me a picture…' : 'Tell me what to do…'; }
+  function pictureOffline({ file, src }) {
+    // shortcut: no image recognition offline; it asks what the picture is for instead of guessing
+    return ask('I can\'t tell what\'s in a picture, but I can use it. What is it?', [
+      { label: 'A robot to copy', run: () => { app.showReference(src); say('It\'s pinned in the corner of the view (click it to make it bigger). Tell me the parts you see, like "add a hub on top of 2 large motors", and I\'ll add them.'); } },
+      { label: 'A mat for the arena', run: async () => {
+        if (app.mode() !== 'test') await app.setMode('test');
+        const rec = await app.upload(file);
+        say(rec ? 'It\'s down as the mat, at FLL size (2362 mm wide). Change the width under Mat on the left if yours is different.' : 'I couldn\'t read that picture.');
+      } },
+    ]);
+  }
+
   async function takeFile(file) {
-    chat.querySelectorAll('.choices').forEach(r => r.remove());
-    pending = null;
-    if (file.type.startsWith('image/') && ai.on) { // Gemini looks at it with the next message
-      const src = await shrink(file);
-      bubble('', 'me').append(Object.assign(new Image(), { src, alt: file.name }));
-      app.showReference(src);
-      ai.picture = { file, data: src.split(',')[1], fresh: true };
-      if (input.value.trim()) { const t = input.value; input.value = ''; return send(t); }
-      return say('Got it, it\'s pinned in the corner of the view too. What should I do with it? (For example "build this robot", or "use it as the mat".)');
-    }
-    if (file.type.startsWith('image/')) {
-      const src = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = () => rej(fr.error); fr.readAsDataURL(file); });
-      bubble('', 'me').append(Object.assign(new Image(), { src, alt: file.name }));
-      // shortcut: no image recognition offline; it asks what the picture is for instead of guessing
-      return ask('I can\'t tell what\'s in a picture, but I can use it. What is it?', [
-        { label: 'A robot to copy', run: () => { app.showReference(src); say('It\'s pinned in the corner of the view (click it to make it bigger). Tell me the parts you see, like "add a hub on top of 2 large motors", and I\'ll add them.'); } },
-        { label: 'A mat for the arena', run: async () => {
-          if (app.mode() !== 'test') await app.setMode('test');
-          const rec = await app.upload(file);
-          say(rec ? 'It\'s down as the mat, at FLL size (2362 mm wide). Change the width under Mat on the left if yours is different.' : 'I couldn\'t read that picture.');
-        } },
-      ]);
-    }
+    if (file.type.startsWith('image/')) return stage(file, await shrink(file));
     bubble(file.name, 'me');
     const rec = await app.upload(file);
     if (!rec) return say('I couldn\'t use that file. I can take LEGO models (.ldr, .mpd, .io), part files (.dat), 3D models (.stl, .obj, .glb) and pictures.');

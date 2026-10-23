@@ -363,7 +363,7 @@ export function autoConnect({ moving, statics, rotation, project, cursor, ray, c
             const key = `${idx}:${mi}:${sign}:${k}:${Math.round(u)}`;
             let score = Math.hypot(sp.x - cursor.x, sp.y - cursor.y) + turn * 30 + ray.distanceToPoint(centre.clone().applyMatrix4(pose)) * 0.15;
             if (height !== null) score += Math.abs(pose.elements[13] - height) * 0.35; // 0.35 px per LDU: one brick up is ~8 px
-            if (key === previous) score -= 14; // stickiness so it doesn't flicker between equal choices so it doesn't flicker between equal choices
+            if (key === previous) score -= 40; // once clicked in, it stays there until you clearly drag it somewhere else
             if (best && score >= best.score) continue;
             score += clash(pose); // only worth checking for a candidate that could win
             if (pin) score += 6; // a direct fit wins a tie against needing a pin

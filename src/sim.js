@@ -40,7 +40,7 @@ let rapierReady = null;
 
 // robotRoot: placed robot (descendants with userData.part). arena: { items, mat }.
 // opts: { reverse, ports: { deviceKey: 'A' } }
-export async function createSim(robotRoot, arena, { reverse = false, ports = {}, roles = {} } = {}) {
+export async function createSim(robotRoot, arena, { reverse = false, ports = {}, roles = {}, flips = {} } = {}) {
   rapierReady ??= RAPIER.init();
   await rapierReady;
 
@@ -252,6 +252,8 @@ export async function createSim(robotRoot, arena, { reverse = false, ports = {},
   }
   // jobs you chose in the Drive tab win over the guess from the wheels
   for (const m of motors) if (['left', 'right', 'centre', 'aux'].includes(roles[m.key])) m.role = roles[m.key];
+  // a motor mounted the other way round (W turns the robot instead of driving it): Flip in the Drive tab reverses it
+  for (const m of motors) { m.baseSign = m.fwdSign || 1; m.flipped = !!flips[m.key]; m.fwdSign = m.baseSign * (m.flipped ? -1 : 1); }
   const giveKeys = () => { let n = 0; for (const m of motors) m.keys = m.role === 'aux' ? AUX_KEYS[n++] || null : null; };
   giveKeys();
 
@@ -766,7 +768,7 @@ export async function createSim(robotRoot, arena, { reverse = false, ports = {},
       joints: mech.joints.length,
       gears: gears.length,
       castors: mech.castors.length,
-      motors: motors.map(m => ({ key: m.key, name: m.name, port: m.port, role: m.role, keys: m.keys, load: m.load, angle: Math.round(m.angle / DEG), dps: Math.round(m.w / DEG), wheelMm: m.wheel ? Math.round(m.wheel.radius * 2 * S * 1000 * 10) / 10 : null, ratio: m.ratio, idle: !m.rotor, assumed: m.assumed })),
+      motors: motors.map(m => ({ flipped: m.flipped, key: m.key, name: m.name, port: m.port, role: m.role, keys: m.keys, load: m.load, angle: Math.round(m.angle / DEG), dps: Math.round(m.w / DEG), wheelMm: m.wheel ? Math.round(m.wheel.radius * 2 * S * 1000 * 10) / 10 : null, ratio: m.ratio, idle: !m.rotor, assumed: m.assumed })),
       sensors: sensors.map(s => ({ key: s.key, name: s.name, type: s.type, port: s.port, value: s.value })),
       imu: imuAngles(),
     };
@@ -787,6 +789,10 @@ export async function createSim(robotRoot, arena, { reverse = false, ports = {},
       }
     },
     // what a motor does when you drive with the keys: 'left' / 'right' wheel, 'aux' (arm keys)
+    setFlip(key, on) {
+      const m = motors.find(x => x.key === key);
+      if (m) { m.flipped = on; m.fwdSign = m.baseSign * (on ? -1 : 1); }
+    },
     setRole(key, role) {
       const m = motors.find(x => x.key === key);
       if (!m) return;

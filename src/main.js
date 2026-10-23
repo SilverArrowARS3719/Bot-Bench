@@ -28,6 +28,8 @@ if (!user) {
   location.replace(`/account.html?mode=signup&next=${encodeURIComponent('/studio.html')}`);
   await new Promise(() => {}); // stop here while the browser leaves
 }
+// your saved work comes from your account before anything below reads it, then keeps being saved
+if (auth.kind === 'convex') { const { restore, keepSaved } = await import('./cloud.js'); await restore(auth); keepSaved(auth, state => { const el = document.querySelector('#me'); if (el) el.dataset.save = state; }); }
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
@@ -467,7 +469,7 @@ function screenOf(v) {
 
 function updateDrag(e) {
   if (!drag.started) {
-    if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 6) return;
+    if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 10) return; // a light touch or a shaky click doesn't move anything
     drag.started = true;
     drag.prep = prepareDrag();
   }
@@ -501,7 +503,7 @@ function updateDrag(e) {
   let hit = null;
   // a small nudge of the mouse just slides the part; only a real move goes looking for a connection
   const travelled = Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0);
-  if (autoConnectOn && !e.altKey && drag.prep?.moving.length && (drag.placing || travelled > 16)) {
+  if (autoConnectOn && !e.altKey && drag.prep?.moving.length && (drag.placing || travelled > 30)) {
     const inv = editor.model.matrixWorld.clone().invert();
     const ray = raycaster.ray.clone().applyMatrix4(inv);
     ray.direction.normalize();
@@ -707,6 +709,7 @@ let filter = 'technic';
 const FILTERS = {
   technic: p => (TECHNIC_CATS.has(p.cat) || p.name.startsWith('Technic')) && !/^Duplo|^Battery/.test(p.name) && !p.cat.startsWith('Sticker'),
   electric: p => p.cat === 'Electric',
+  ev3: p => /Mindstorms (EV3|NXT)/.test(p.name),
   wheels: p => p.cat === 'Wheel' || p.cat === 'Tyre',
   all: () => true,
 };
@@ -1044,7 +1047,14 @@ const pickFile = (input, fn) => {
 $('#save').addEventListener('click', () => download('robot.ldr', editor.serialize()));
 const openModel = () => pickFile($('#file-model'), async f => { select(null); await editor.open(f); fitView(); });
 $('#open').addEventListener('click', openModel);
-$('#open-file').addEventListener('click', openModel);
+// "Create your own bot": an empty build, with the parts list pointing at where a robot usually starts
+let fromScratch = false;
+$('#open-file').addEventListener('click', () => {
+  fromScratch = true;
+  refreshEmpty();
+  setFilter(robotIsEv3() ? 'ev3' : 'electric');
+  toast('Start with a hub (the brain): click one in the list, then click in the view. Motors and wheels next.');
+});
 const openExample = async () => { select(null); await editor.open(new File([exampleRobot], 'example drive base.ldr')); fitView(); };
 $('#open-example').addEventListener('click', openExample);
 
@@ -1071,7 +1081,8 @@ $('#part-bar').addEventListener('click', async e => {
 });
 
 // An empty build area says how to start, instead of showing nothing.
-const refreshEmpty = () => { $('#empty').hidden = mode !== 'build' || !!placing || editor.parts().length > 0; };
+const robotIsEv3 = () => editor.parts().some(p => /^9(5646|5658|9455|5650|5652|5648|9380)/.test(p.userData.file));
+const refreshEmpty = () => { $('#empty').hidden = mode !== 'build' || !!placing || fromScratch || editor.parts().length > 0; };
 editor.onChange(refreshEmpty);
 
 // Help: every shortcut in one place (and once, the first time someone opens the app).
@@ -1282,7 +1293,7 @@ async function play() {
   select(null);
   try {
     arena.savePoses();
-    sim = await createSim(robotStart, arena, { reverse: $('#reverse').checked, ports: loadChoices(PORTS_KEY), roles: loadChoices(ROLES_KEY) });
+    sim = await createSim(robotStart, arena, { reverse: $('#reverse').checked, ports: loadChoices(PORTS_KEY), roles: loadChoices(ROLES_KEY), flips: loadChoices(FLIPS_KEY) });
     sim.setSpeed(+$('#speed').value / 100);
     sim.setTurnSpeed(+$('#turn-speed').value / 100);
     sim.setStopMode($('#stop-mode').value);
@@ -1339,7 +1350,7 @@ $('#reverse').addEventListener('change', () => { if (sim) { stopSim(); play(); }
 $('#stop-mode').addEventListener('change', () => sim?.setStopMode($('#stop-mode').value));
 
 // Each device's port and job are remembered (by part + where it sits), so they survive Reset and reloads.
-const PORTS_KEY = 'studio.ports', ROLES_KEY = 'studio.roles';
+const PORTS_KEY = 'studio.ports', ROLES_KEY = 'studio.roles', FLIPS_KEY = 'studio.flips';
 const loadChoices = k => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch { return {}; } };
 function saveChoice(k, key, value, unique) {
   const all = loadChoices(k);
@@ -1390,7 +1401,7 @@ function refreshTelemetry() {
     return;
   }
   // rebuild the cards only when something about them changes, so the dropdowns stay usable
-  const shape = JSON.stringify([...t.motors, ...t.sensors].map(d => [d.key, d.port, d.role, d.keys]));
+  const shape = JSON.stringify([...t.motors, ...t.sensors].map(d => [d.key, d.port, d.role, d.keys, d.flipped]));
   if (shape !== telemetryShape) {
     telemetryShape = shape;
     const frag = document.createDocumentFragment();
@@ -1415,13 +1426,19 @@ function refreshTelemetry() {
         role.title = 'What this motor does when you drive with the keyboard';
         role.setAttribute('aria-label', `Job for ${d.name}`);
         role.addEventListener('change', () => { saveChoice(ROLES_KEY, d.key, role.value); sim?.setRole(d.key, role.value); refreshTelemetry(); });
-        card.append(role, el('div', 'reading', '<span></span><span></span>'), el('div', 'load', '<i></i>'));
+        const flip = el('button', 'flip', d.flipped ? 'Flipped' : 'Flip');
+        flip.type = 'button';
+        flip.setAttribute('aria-pressed', !!d.flipped);
+        flip.title = 'Spins the wrong way? Flip it. Use this when W turns the robot instead of driving it straight.';
+        flip.addEventListener('click', () => { const on = !d.flipped; saveChoice(FLIPS_KEY, d.key, on ? '1' : ''); sim?.setFlip(d.key, on); d.flipped = on; telemetryShape = null; refreshTelemetry(); });
+        card.append(role, flip, el('div', 'reading', '<span></span><span></span>'), el('div', 'load', '<i></i>'));
       } else card.append(el('div', 'reading', '<span></span>'));
       // point at a card to see which part it is
       card.addEventListener('mouseenter', () => glowOn(sim?.objectOf(d.key)));
       card.addEventListener('mouseleave', () => glowOn(null));
       frag.append(card);
     }
+    if (t.motors.some(m => m.role === 'left') && t.motors.some(m => m.role === 'right')) frag.prepend(el('p', 'note hint', 'Hold <kbd>W</kbd>: the robot should drive straight. If it turns instead, press <b>Flip</b> on the motor that spins backwards.'));
     if (!t.motors.length) frag.append(el('p', 'note', 'No motors found. Add a motor and put an axle through its output.'));
     if (t.assumedMotor) frag.append(el('p', 'note', 'There are no motor parts in the model, so each wheel gets a SPIKE Large Motor.'));
     for (const n of t.notes) frag.append(el('p', 'note', n));

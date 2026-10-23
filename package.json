@@ -10,11 +10,16 @@
     "start": "node server.mjs"
   },
   "dependencies": {
+    "@auth/core": "^0.41.3",
+    "@convex-dev/auth": "^0.0.96",
     "@dimforge/rapier3d-compat": "^0.14.0",
     "@fontsource-variable/geist": "^5.3.0",
     "@fontsource-variable/geist-mono": "^5.3.0",
     "@google/genai": "^2.30.0",
+    "@oslojs/crypto": "^1.0.1",
     "blockly": "^11.2.2",
+    "convex": "^1.47.0",
+    "resend": "^6.34.1",
     "three": "^0.169.0"
   },
   "devDependencies": {

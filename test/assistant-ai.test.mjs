@@ -49,6 +49,13 @@ test('only text, pictures and action results get through, and each visitor is ra
   s.close();
 });
 
+test('Google overloaded (503) is treated like busy, so the browser waits and retries', async () => {
+  const s = await serve(createAiHandler({ client: fakeGemini(Object.assign(new Error('overloaded'), { status: 503 })) }));
+  const r = await s.post({ input: [{ type: 'text', text: 'hi' }] });
+  assert.deepEqual([r.status, (await r.json()).error], [429, 'quota']);
+  s.close();
+});
+
 test('Google\'s free quota running out comes back as "quota"', async () => {
   const s = await serve(createAiHandler({ client: fakeGemini(Object.assign(new Error('quota'), { status: 429 })) }));
   const r = await s.post({ input: [{ type: 'text', text: 'hi' }] });

@@ -452,3 +452,10 @@ body.placing .part-bar { display: none; }
 .menu p { margin: 4px 8px 8px; color: var(--muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; }
 .menu a, .menu button { display: flex; align-items: center; height: 34px; padding: 0 10px; border: 0; border-radius: 8px; background: none; box-shadow: none; color: var(--text); text-decoration: none; font-size: 13px; justify-content: flex-start; }
 .menu a:hover, .menu button:hover { background: var(--hover); }
+.avatar[data-save="error"] { box-shadow: 0 0 0 2px var(--bad); }
+.attach { display: flex; align-items: flex-start; gap: 6px; padding: 8px 10px 0; }
+.attach img { height: 64px; border-radius: 8px; border: 1px solid var(--line); }
+.attach button { width: 24px; height: 24px; padding: 0; border-radius: 50%; font-size: 15px; }
+.device .flip { grid-column: 1 / -1; height: 26px; font-size: 12px; }
+.device .flip[aria-pressed="true"] { background: var(--blue-soft); border-color: var(--blue-line); color: var(--text); }
+#telemetry .hint { margin: 0 0 10px; }

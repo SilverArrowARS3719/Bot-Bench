@@ -12,7 +12,7 @@ const LIMITS = { message: { minute: 12, day: 300 }, step: { minute: 90, day: 250
 const SYSTEM = `You are the assistant inside Bot Bench, a web app where students build LEGO robots (SPIKE Prime, EV3, Technic) in 3D from real LEGO parts and test them in a simulated arena. You change the model only through the tools. Every size, weight and motor speed in the app is real.
 
 How to work:
-- Do what the student asks with the tools, in as few rounds as you can: call several tools at once (for example, add every part you need in one go, then fine-tune in one more round). Each message already lists the robot's parts with ids; only call look_at_robot if you need it again after big changes.
+- Speed matters: every round trip makes the student wait many seconds. Plan the whole job first, then do it ALL in ONE reply: one build call with every step in order (later steps can refer to parts added by earlier steps by their name), plus done with the summary, in that same reply. Only take another round if a step reports an error. Each message already lists the robot's parts with ids, so you rarely need look_at_robot.
 - When the student sends a picture of a robot, study it, list the parts you can see (hub, motors and their size, wheels, beams, sensors, how they sit), then build it part by part. If something important isn't visible or is ambiguous, ask with ask_user (give short options) instead of guessing.
 - If you're not sure of a part's exact name, use find_parts. Prefer common SPIKE Prime / Technic parts.
 - Positions are in millimetres from the robot's centre on the floor: right_mm is to the robot's right, up_mm is up, forward_mm is towards the robot's front. 1 stud = 8 mm. A SPIKE hub is 88 x 56 x 32 mm; a large motor about 48 x 32 x 40 mm; a medium motor about 40 x 32 x 24 mm.
@@ -23,6 +23,18 @@ How to work:
 // The actions the model can use. The browser carries them out (src/assistant.js, aiTools).
 const ids = { type: 'array', items: { type: 'integer' }, description: 'Part ids from look_at_robot or from earlier results' };
 const TOOLS = [
+  fn('build', 'Do a whole build in one go: steps run in order, instantly. Give added parts a name to use them as targets in later steps.', {
+    steps: { type: 'array', items: { type: 'object', properties: {
+      action: { type: 'string', enum: ['add', 'move', 'turn', 'colour', 'delete'] },
+      name: { type: 'string', description: 'add: a name for the parts this step adds, e.g. "left motor"' },
+      part: { type: 'string', description: 'add: same as add_parts.part' },
+      count: { type: 'integer' }, colour: { type: 'string' },
+      relation: { type: 'string', enum: ['on', 'under', 'left', 'right', 'front', 'behind'] },
+      targets: { type: 'array', items: { type: 'string' }, description: 'Part ids (as text) or names from earlier steps. For add: what it goes on/next to. For move/turn/colour/delete: what to change.' },
+      right_mm: { type: 'number' }, up_mm: { type: 'number' }, forward_mm: { type: 'number' },
+      axis: { type: 'string', enum: ['vertical', 'tip'] }, quarter_turns: { type: 'integer' },
+    }, required: ['action'] } },
+  }, ['steps']),
   fn('look_at_robot', 'List every part in the robot with its id, name, part number, colour, centre position and size (mm).', {}),
   fn('find_parts', 'Search the LEGO parts library by name or part number. Returns up to 8 matches.', { query: { type: 'string' } }, ['query']),
   fn('add_parts', 'Add parts to the robot. Without a relation they go beside the robot on the floor.', {
@@ -105,13 +117,14 @@ export function createAiHandler({ apiKey, client = apiKey ? new GoogleGenAI({ ap
         // plan a new message (or read a photo) carefully; carrying out the plan's steps needs less thought, and is faster
         generation_config: { thinking_level: fromStudent ? 'medium' : 'low' },
         ...(typeof body.interactionId === 'string' && { previous_interaction_id: body.interactionId }),
-      });
+      }, { retries: { strategy: 'none' } }); // no silent minutes of waiting: when Google is busy the student is told, and the browser retries
       const calls = (interaction.steps || []).filter(s => s.type === 'function_call').map(s => ({ id: s.id, name: s.name, args: s.arguments || {} }));
       return send(res, 200, { id: interaction.id, calls, text: calls.length ? '' : interaction.output_text || '' });
     } catch (err) {
       const status = err?.status || err?.code;
       console.error('[assistant]', status, err?.message);
-      return send(res, status === 429 ? 429 : 502, { error: status === 429 ? 'quota' : 'ai-failed' });
+      // busy (429) or overloaded (503): the browser counts down and tries again, rather than giving up
+      return send(res, status === 429 || status === 503 ? 429 : 502, { error: status === 429 || status === 503 ? 'quota' : 'ai-failed' });
     }
   };
 }

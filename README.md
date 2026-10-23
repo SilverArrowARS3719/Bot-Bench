@@ -18,7 +18,17 @@ Then open http://localhost:5173. Use `npm run dev`: it turns on the cross-origin
 - `/account.html` sign up or log in: **Continue with Google**, or email + password; a new account confirms its email with a 6-digit code.
 - `/studio.html` the studio. Only for signed-in people: anyone else is sent to sign up first and comes back after. Your initial at the top right has Log out.
 
-All pages talk to accounts through `src/auth.js`. **No sign-in service is connected yet.** On the dev server a stand-in keeps accounts in your browser and shows the code on the page instead of emailing it, so the whole flow can be tried. A published build refuses to sign anyone in until a real service is connected there, so don't publish before that.
+All pages talk to accounts through `src/auth.js`. Accounts and saved work run on **Convex** (`convex/`): email + password with a 6-digit code emailed through Resend, or Google. Your robot, arena, code, blocks, ports and settings are saved to your account (`src/cloud.js`) a few seconds after each change and loaded when the studio opens. Large mat pictures stay in the browser only.
+
+Setting it up once:
+
+1. `npx convex dev`: log in, create a project. Leave it running; it writes `VITE_CONVEX_URL` to `.env.local`.
+2. `npx @convex-dev/auth`: sets up the sign-in keys. Give `http://localhost:5173` as the site address (your real address once published).
+3. Email codes: make a free account at resend.com, create an API key, then `npx convex env set AUTH_RESEND_KEY <key>`. Until you verify your own domain in Resend, codes can only be sent to the email you signed up to Resend with; then set `AUTH_EMAIL_FROM` to e.g. `Bot Bench <codes@yourdomain>`.
+4. Google: in Google Cloud Console create an OAuth client (web), with the redirect URI `https://<your-deployment>.convex.site/api/auth/callback/google`, then `npx convex env set AUTH_GOOGLE_ID <id>` and `npx convex env set AUTH_GOOGLE_SECRET <secret>`.
+5. Restart `npm run dev`.
+
+Without `VITE_CONVEX_URL`, the dev server uses a stand-in that keeps accounts in your browser and shows the code on the page; a published build without Convex signs nobody in.
 
 On a new computer you also need the part libraries: LDraw (about 230 MB download) and the LDCad snap data (about 2 MB).
 
